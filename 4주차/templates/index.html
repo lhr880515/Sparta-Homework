@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <!-- ajax import -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <title>상품페이지</title>
+
+    <style>
+        body {
+            width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+            margin-bottom: 200px;
+        }
+
+        .product_image {
+            width: 500px;
+            height: auto;
+            border: solid;
+            margin: 10px;
+        }
+
+        .price {
+            font-size: small;
+        }
+
+
+        table {
+            width: 100%;
+            border-top: 1px solid #444444;
+            border-collapse: collapse;
+            margin-bottom: 50px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #444444;
+            padding: 10px;
+            text-align: right;
+        }
+
+        .terms {
+            margin-top: 50px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(
+            function () {
+                // 여기에 환율 API Ajax 요청을 하면 되겠죠?
+                $.ajax({
+                    type: "GET", // GET 방식으로 요청한다.
+                    url: "https://api.binance.com/api/v3/ticker/24hr",
+                    data: {}, // 요청하면서 함께 줄 데이터 (GET 요청시엔 비워두세요)
+                    success: function (response) { // 서버에서 준 결과를 'response'라는 변수에 담음
+                        last_price_KRW = response[776]['lastPrice']
+                        last_price_KRW2 = last_price_KRW.slice(0, 2) + "," + last_price_KRW.slice(2, 5) + "," + last_price_KRW.slice(5, 11)
+                        diff_price_KRW = response[776]['priceChange']
+                        diff_price_KRW = diff_price_KRW.slice(0, 2) + "," + diff_price_KRW.slice(2, 8)
+                        diff_percent_KRW = response[776]['priceChangePercent']
+                        diff_percent_KRW = diff_percent_KRW.substring(0, (diff_percent_KRW.length - 1))
+
+                        $('#price_KRW').append("￦ ").append(last_price_KRW2);
+                        if (diff_price_KRW.slice(0, 1) != "-") {
+                            $('#diff_KRW').append("▲").append(diff_price_KRW).append(" (", diff_percent_KRW, " %)");
+                            $('#diff_KRW').css('color', 'red');
+                        }
+                        else if (diff_price_KRW.includes("-")) {
+                            $('#diff_KRW').append("▼").append(diff_price_KRW).append(" (", diff_percent_KRW, " %)");
+                            $('#diff_KRW').css('color', 'blue');
+                        }
+
+
+                        last_price_USD = response[11]['lastPrice']
+                        last_price_USD = last_price_USD.slice(0, 1) + "," + last_price_USD.slice(1, 7)
+                        diff_price_USD = response[11]['priceChange']
+                        diff_price_USD = diff_price_USD.substring(0, (diff_price_USD.length - 6))
+                        diff_percent_USD = response[11]['priceChangePercent'];
+                        diff_percent_USD = diff_percent_USD.substring(0, (diff_percent_USD.length - 1))
+
+                        $('#price_USD').append("$ ").append(last_price_USD);
+                        if (diff_price_USD > 0) {
+                            $('#diff_USD').append("▲").append(diff_price_USD).append(" (", diff_percent_USD, " %)");
+                            $('#diff_USD').css('color', 'red');
+                        }
+                        else if (diff_price_USD < 0) {
+                            $('#diff_USD').append("▼").append(diff_price_USD).append(" (", diff_percent_USD, " %)");
+                            $('#diff_USD').css('color', 'blue');
+                        }
+
+                        last_price_EUR = response[695]['lastPrice']
+                        last_price_EUR = last_price_EUR.slice(0, 1) + "," + last_price_EUR.slice(1, 7)
+                        diff_price_EUR = response[695]['priceChange']
+                        diff_price_EUR = diff_price_EUR.substring(0, (diff_price_EUR.length - 6))
+                        diff_percent_EUR = response[695]['priceChangePercent'];
+                        diff_percent_EUR = diff_percent_EUR.substring(0, (diff_percent_EUR.length - 1))
+
+                        $('#price_EUR').append("€ ").append(last_price_EUR);
+                        if (diff_price_EUR > 0) {
+                            $('#diff_EUR').append("▲").append(diff_price_EUR).append(" (", diff_percent_EUR, " %)");
+                            $('#diff_EUR').css('color', 'red');
+                        }
+                        else if (diff_price_EUR < 0) {
+                            $('#diff_EUR').append("▼").append(diff_price_EUR).append(" (", diff_percent_EUR, " %)");
+                            $('#diff_EUR').css('color', 'blue');
+                        }
+                    }
+                })
+            });
+
+
+        let pay_method = "none"
+        function payment1() {
+            pay_method = "checked";
+        }
+        function payment2() {
+            pay_method = "checked";
+        }
+
+
+        let click_term1 = 0;
+        function check_term1() {
+            click_term1 += 1;
+        }
+
+        let click_term2 = 0;
+        function check_term2() {
+            click_term2 += 1;
+        }
+
+        let click_term3 = 0;
+        function check_term3() {
+            click_term3 += 1;
+        }
+
+
+        function button_click() {
+
+            let 성 = $('#inputName1').val();
+            let 이름 = $('#inputName2').val();
+            let 입금액 = $('#Quantity').val();
+            let 구매량 = 입금액 / last_price_KRW;
+            let 시간 = new Date();
+            let 월 = 시간.getMonth()+1;
+            let 일 = 시간.getDate();
+            let 시 = 시간.getHours();
+            let 분 = 시간.getMinutes();
+            let 구매시간 = 월.toString() + "월 " + 일.toString() + "일 " + 시.toString() + ":" + 분.toString();
+
+            if (성 == "" || 이름 == "") {
+                alert("이름을 입력해주세요")
+            }
+
+            if (입금액 == 0) {
+                alert("입금할 금액을 입력해주세요")
+            }
+
+            if (pay_method == "none") {
+                alert("결제방식을 선택해주세요");
+            }
+
+            if ((click_term1 * click_term2 * click_term3) % 2 == 0) {
+                alert("약관에 모두 동의해주세요");
+            }
+
+            if ((성 != "" && 이름 != "") > 0 &&
+                (입금액 != 0) &&
+                (pay_method == "checked") &&
+                ((click_term1 * click_term2 * click_term3) % 2 != 0)) {
+                alert("주문이 정상적으로 처리되었습니다")
+            }
+
+            //버튼을 클릭하면 새로운 URL(/history)에 입력값을 저장한다. 
+            $.ajax({
+                type: 'POST', // 타입을 작성합니다.
+                url: '/history', // history에 값을 작성합니다.
+                data: { //저장할 입력값
+                    requester1_give: 성, //성 ,
+                    requester2_give: 이름, // 이름,
+                    price_input_give: 입금액, //입금액,
+                    price_output_give: 구매량,
+                    time_give: 구매시간
+                },
+
+
+            });
+
+
+            $.ajax({
+                type: "GET",
+                url: "/history",
+                data: {},
+                success: function (response) {
+                    console.log(response['all_histories'])
+                    location.replace('/read_history')
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <div>
+        <img class="product_image" src="https://image.zdnet.co.kr/2013/11/04/czaD8pqbEJkRjYit7IUE.jpg">
+    </div>
+
+    <div>
+        <H1>비트코인</span></H1>
+        <P>
+            블록체인 기술을 기반으로 만들어진 온라인 암호화폐이다. 중앙은행이 없이 전 세계적 범위에서 P2P 방식으로 개인들 간에 자유롭게 송금 등의 금융거래를 할 수 있게 설계되어 있다.
+        </P>
+        <br>
+    </div>
+
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>페어</th>
+                    <th>환율</th>
+                    <th>전일대비 (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>BTC-USD</td>
+                    <td id="price_USD"></td>
+                    <td id="diff_USD"></td>
+                </tr>
+                <tr>
+                    <td>BTC-EUR</td>
+                    <td id="price_EUR"></td>
+                    <td id="diff_EUR"></td>
+                </tr>
+                <tr>
+                    <td>BTC-KRW</td>
+                    <td id="price_KRW"></td>
+                    <td id="diff_KRW"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="order">
+        <H1>주문하기</H1>
+        <br>
+        <form>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputName1">성</label>
+                    <input type="name" class="form-control" id="inputName1" placeholder="ex) HONG">
+                </div>
+                <div class=" form-group col-md-6">
+                    <label for="inputName2">이름</label>
+                    <input type="name" class="form-control" id="inputName2" placeholder="ex) GILDONG">
+                </div>
+            </div>
+        </form>
+
+        <p>입금할 통화</p>
+        <div class="input-group">
+            <input type="number" class="form-control" id="Quantity" aria-label="number input with dropdown button">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">KRW</button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" href="#">KRW</button>
+                    <button class="dropdown-item" href="#">USD</button>
+                    <button class="dropdown-item" href="#">EUR</button>
+                </div>
+            </div>
+        </div>
+
+        <P><br>결제 방식</P>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1"
+                onclick="payment1()">
+            <label class="form-check-label" for="inlineRadio1">신용카드</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2"
+                onclick="payment2()">
+            <label class="form-check-label" for="inlineRadio2">계좌이체</label>
+        </div>
+
+        <p class="terms">구매조건 확인 및 결제대행 서비스 약관 동의</p>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" onclick="check_term1()">
+            <label class="form-check-label" for="defaultCheck1">
+                서비스 이용약관 동의
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" onclick="check_term2()">
+            <label class="form-check-label" for="defaultCheck1">
+                개인정보 이용 및 수집 동의
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" onclick="check_term3()">
+            <label class="form-check-label" for="defaultCheck1">
+                개인정보 제공 및 위탁 동의
+            </label>
+        </div>
+
+        <input class="btn btn-primary" type="submit" id="button1" onclick="button_click() ;" value="제출">
+
+    </div>
+
+
+
+
+</body>
+
+</html>

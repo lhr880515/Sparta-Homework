@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <!-- ajax import -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <style>
+        body {
+            width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+            margin-bottom: 200px;
+        }
+
+        table {
+            width: 100%;
+            border-top: 1px solid #444444;
+            border-collapse: collapse;
+            margin-bottom: 50px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #444444;
+            padding: 10px;
+            text-align: right;
+        }
+    </style>
+
+    <script>
+
+        function comma(num) {
+            var len, point, str;
+
+            num = num + "";
+            point = num.length % 3;
+            len = num.length;
+
+            str = num.substring(0, point);
+            while (point < len) {
+                if (str != "") str += ",";
+                str += num.substring(point, point + 3);
+                point += 3;
+            }
+
+            return str;
+        }
+
+        date = new Date();
+        month = date.getMonth();
+        day = date.getDate();
+        hour = date.getHours();
+        minute = date.getMinutes();
+        second = date.getSeconds();
+
+        $(document).ready(function () {
+            listing();
+        });
+
+        function listing() {
+            $.ajax({
+                type: "GET",
+                url: "/history",
+                data: {},
+                success: function (response) {
+                    let histories = response['all_histories']
+
+                    for (let i = 0; i < histories.length; i++) {
+                        let 성 = histories[i]['성']
+                        let 이름 = histories[i]['이름']
+                        let 입금액 = comma(histories[i]['입금액'])
+                        let 구매량 = histories[i]['구매량'].substring(0,(histories[i]['구매량'].split(".")[0].length)+5)
+                        let 구매시간 = histories[i]['구매시간']
+
+                        let temp_html = `<tr>
+                                            <td id="history_성">${성}</td>
+                                            <td id="history_이름">${이름}</td>
+                                            <td id="history_입금액">${입금액}</td>
+                                            <td id="history_구매량">${구매량}</td>
+                                            <td id="history_시간">${구매시간}</td>
+                                        </tr>`
+                        $('#history_box').append(temp_html)
+                    }
+                }
+            })
+        }
+    </script>
+
+
+</head>
+
+<body>
+    <li> 주문 내역 </li>
+    <BR>
+
+    <table>
+        <thead>
+            <tr>
+                <th>성</th>
+                <th>이름</th>
+                <th>입금액(KRW)</th>
+                <th>구매량(BTC)</th>
+                <th>시간</th>
+
+            </tr>
+        </thead>
+        <tbody id="history_box">
+            <tr>
+                <td id="history_성"> 홍 </td>
+                <td id="history_이름"> 길동 </td>
+                <td id="history_입금액"> 15,000,000 </td>
+                <td id="history_구매량"> 1.2442 </td>
+                <td id="history_시간"> 5월 2일 21:51 </td>
+            </tr>
+            <tr>
+                <td id="history_성"> 김 </td>
+                <td id="history_이름"> 철수 </td>
+                <td id="history_입금액"> 3,500,000 </td>
+                <td id="history_구매량"> 0.2903 </td>
+                <td id="history_시간"> 5월 9일 22:31 </td>
+            </tr>
+            <tr>
+                <td id="history_성"> Iron </td>
+                <td id="history_이름"> Man </td>
+                <td id="history_입금액"> 2,300,000,000 </td>
+                <td id="history_구매량"> 109.7922 </td>
+                <td id="history_시간"> 5월 13일 19:48 </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="/"> 주문 화면으로 돌아가기 </a>
+
+</body>
+
+</html>
